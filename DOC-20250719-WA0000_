@@ -1,0 +1,81 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "1798f63a",
+   "metadata": {},
+   "source": [
+    "# 🧹 Dataset Cleaning & Encoding for Dating App\n",
+    "This notebook loads a dating dataset, cleans it, and encodes it for use in a compatibility-checking model."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "44350a28",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import pandas as pd\n",
+    "\n",
+    "# Load the dataset\n",
+    "file_path = \"Book1.csv\"  # Make sure the file is in the same directory\n",
+    "df = pd.read_csv(file_path)\n",
+    "\n",
+    "# Show basic info\n",
+    "df.info()\n",
+    "df.head()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "9eef54d0",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Step 1: Drop unnecessary columns\n",
+    "df_cleaned = df.drop(columns=['last_online', 'location'])"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "cde234af",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Step 2: Handle missing values\n",
+    "# Drop rows missing essential data\n",
+    "essential_columns = ['sex', 'orientation', 'age']\n",
+    "df_cleaned = df_cleaned.dropna(subset=essential_columns)\n",
+    "\n",
+    "# Fill missing categorical with 'unknown'\n",
+    "categorical_cols = df_cleaned.select_dtypes(include='object').columns\n",
+    "df_cleaned[categorical_cols] = df_cleaned[categorical_cols].fillna('unknown')\n",
+    "\n",
+    "# Fill missing numeric with median\n",
+    "numeric_cols = df_cleaned.select_dtypes(include='number').columns\n",
+    "df_cleaned[numeric_cols] = df_cleaned[numeric_cols].fillna(df_cleaned[numeric_cols].median())"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "c5617811",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Step 3: Encode categorical variables\n",
+    "df_encoded = pd.get_dummies(df_cleaned, columns=categorical_cols, drop_first=True)\n",
+    "\n",
+    "# Show shape of datasets\n",
+    "print(\"Cleaned shape:\", df_cleaned.shape)\n",
+    "print(\"Encoded shape:\", df_encoded.shape)"
+   ]
+  }
+ ],
+ "metadata": {},
+ "nbformat": 4,
+ "nbformat_minor": 5
+}
